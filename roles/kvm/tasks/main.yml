@@ -1,0 +1,103 @@
+---
+
+- name: Ensure VM Base directory Present
+  command: mkdir -p /kvm/{{item.vm_name}}
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: copy vm template
+  template: src=vmtemplate.xml.j2 dest=/kvm/{{item.vm_name}}/vmtemplate.xml
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: copy meta-data
+  template: src=meta-data.j2 dest=/kvm/{{item.vm_name}}/meta-data
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: copy user-data
+  template: src=user-data.j2 dest=/kvm/{{item.vm_name}}/user-data
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: copy ubuntu base
+  copy:
+    src=ubuntu-base.qcow2
+    dest=/kvm/{{item.vm_name}}/{{item.vm_name}}.qcow2
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: resize base image
+  command: "sudo qemu-img resize {{item.vm_name}}.qcow2 {{item.vm_os_disk_size}} chdir=/kvm/{{item.vm_name}}/"
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+
+- name: create cidata
+  command: "sudo mkisofs -o cidata.iso -V cidata -J -r user-data meta-data chdir=/kvm/{{item.vm_name}}/"
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: assign static ip
+  command: sudo virsh net-update default add ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
+  with_items: "{{ cluster_hosts }}"
+  ignore_errors: yes
+  tags:
+    - setup
+
+- name: Create the vm
+  command: "sudo virsh create vmtemplate.xml chdir=/kvm/{{item.vm_name}}/"
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - setup
+
+- name: list vm
+  command: "sudo virsh list"
+  register: vms
+  tags:
+    - list
+
+- name: list vm ips
+  command: "sudo virsh net-dhcp-leases default"
+  register: vmips
+  tags:
+    - list
+
+- name: debug
+  debug: var=vmips.stdout_lines
+  tags:
+    - list
+
+- name: remove dhcp entry
+  command: sudo virsh net-update default delete ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
+  with_items: "{{ cluster_hosts }}"
+  ignore_errors: yes
+  tags:
+    - teardown
+
+- name: destroy vm
+  command: "sudo virsh destroy {{item.vm_name}}"
+  with_items: "{{ cluster_hosts }}"
+  ignore_errors: yes
+  tags:
+    - teardown
+
+- name: undefine vm
+  command: "sudo virsh undefine {{item.vm_name}}"
+  with_items: "{{ cluster_hosts }}"
+  ignore_errors: yes
+  tags:
+    - teardown
+
+- name: remove vm data
+  command: "sudo rm -rf /kvm/{{item.vm_name}}"
+  with_items: "{{ cluster_hosts }}"
+  tags:
+    - teardown

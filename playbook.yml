@@ -1,0 +1,8 @@
+---
+# This Playbook would deploy the whole mongodb cluster with replication.
+- name: update package
+  hosts: all
+  become: yes
+  become_method: sudo
+  roles:
+  - role: common

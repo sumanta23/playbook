@@ -1,0 +1,7 @@
+---
+- name: create 3 node cluster
+  hosts: localhost
+  become: yes
+  become_method: sudo
+  roles:
+  - role: kvm

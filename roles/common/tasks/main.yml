@@ -1,0 +1,6 @@
+---
+- name: Install Base packages
+  apt:
+    name: ['vim', 'bc']
+    state: present
+    update_cache: yes
