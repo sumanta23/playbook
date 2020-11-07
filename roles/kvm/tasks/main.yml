@@ -46,26 +46,34 @@
     - setup
 
 - name: assign static ip
-  command: sudo virsh net-update default add ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
+  command: virsh net-update default add ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
   with_items: "{{ cluster_hosts }}"
   ignore_errors: yes
+  become: yes
+  become_method: sudo
   tags:
     - setup
 
 - name: Create the vm
-  command: "sudo virsh create vmtemplate.xml chdir=/kvm/{{item.vm_name}}/"
+  command: "virsh create vmtemplate.xml chdir=/kvm/{{item.vm_name}}/"
   with_items: "{{ cluster_hosts }}"
+  become: yes
+  become_method: sudo
   tags:
     - setup
 
 - name: list vm
-  command: "sudo virsh list"
+  command: "virsh list"
+  become: yes
+  become_method: sudo
   register: vms
   tags:
     - list
 
 - name: list vm ips
-  command: "sudo virsh net-dhcp-leases default"
+  command: "virsh net-dhcp-leases default"
+  become: yes
+  become_method: sudo
   register: vmips
   tags:
     - list
@@ -75,29 +83,58 @@
   tags:
     - list
 
+- name: Debug
+  debug: var=vms.stdout_lines
+  tags:
+    - list
+
 - name: remove dhcp entry
-  command: sudo virsh net-update default delete ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
+  command: virsh net-update default delete ip-dhcp-host "<host mac='{{item.vm_mac_address}}' name='{{item.vm_name}}' ip='{{item.vm_public_ip}}'/>" --live --config
   with_items: "{{ cluster_hosts }}"
+  become: yes
+  become_method: sudo
   ignore_errors: yes
   tags:
     - teardown
 
 - name: destroy vm
-  command: "sudo virsh destroy {{item.vm_name}}"
+  command: "virsh destroy {{item.vm_name}}"
   with_items: "{{ cluster_hosts }}"
   ignore_errors: yes
+  become: yes
+  become_method: sudo
   tags:
     - teardown
 
 - name: undefine vm
-  command: "sudo virsh undefine {{item.vm_name}}"
+  command: "virsh undefine {{item.vm_name}}"
   with_items: "{{ cluster_hosts }}"
   ignore_errors: yes
+  become: yes
+  become_method: sudo
   tags:
     - teardown
 
 - name: remove vm data
-  command: "sudo rm -rf /kvm/{{item.vm_name}}"
+  command: "rm -rf /kvm/{{item.vm_name}}"
   with_items: "{{ cluster_hosts }}"
+  become: yes
+  become_method: sudo
   tags:
     - teardown
+
+- name: stop all kvms
+  command: "virsh shutdown {{item.vm_name}}"
+  with_items: "{{ cluster_hosts }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - stop
+
+- name: start all kvms
+  command: "virsh start {{item.vm_name}}"
+  with_items: "{{ cluster_hosts }}"
+  become: yes
+  become_method: sudo
+  tags:
+    - start

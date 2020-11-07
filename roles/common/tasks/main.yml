@@ -1,6 +1,6 @@
 ---
 - name: Install Base packages
   apt:
-    name: ['vim', 'bc']
+    name: ['vim', 'curl', 'tmux', 'git']
     state: present
     update_cache: yes
