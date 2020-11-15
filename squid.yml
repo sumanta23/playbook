@@ -1,0 +1,8 @@
+---
+# This Playbook would deploy the whole mongodb cluster with replication.
+- name: update package
+  hosts: squid
+  become: yes
+  become_method: sudo
+  roles:
+  - role: squid
