@@ -1,5 +1,5 @@
 ---
 cluster_hosts:
-  - {vm_name: "master", vm_public_ip: 192.168.122.10, vm_mac_address: "02:68:b3:29:da:98", vm_vcpus: "1", vm_ram: "1024", vm_os_disk_size: "10G" }
-  - {vm_name: "worker1", vm_public_ip: 192.168.122.20, vm_mac_address: "02:b1:94:6a:c9:24", vm_vcpus: "1", vm_ram: "1024", vm_os_disk_size: "10G" }
-  - {vm_name: "worker2", vm_public_ip: 192.168.122.21, vm_mac_address: "02:b1:94:6a:c9:25", vm_vcpus: "1", vm_ram: "1024", vm_os_disk_size: "10G" }
+  - {vm_name: "master", vm_public_ip: 192.168.122.10, vm_mac_address: "02:68:b3:29:da:98", vm_vcpus: "2", vm_ram: "2048", vm_os_disk_size: "10G" }
+#  - {vm_name: "worker1", vm_public_ip: 192.168.122.20, vm_mac_address: "02:b1:94:6a:c9:24", vm_vcpus: "1", vm_ram: "1024", vm_os_disk_size: "10G" }
+#  - {vm_name: "worker2", vm_public_ip: 192.168.122.21, vm_mac_address: "02:b1:94:6a:c9:25", vm_vcpus: "1", vm_ram: "1024", vm_os_disk_size: "10G" }
