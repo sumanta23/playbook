@@ -1,0 +1,3 @@
+---
+- name: restart nfs
+  service: name={{ nfs_daemon }} state=restarted enabled=yes

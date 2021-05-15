@@ -1,0 +1,16 @@
+---
+- name: make sure {{ nfs_dir }} dir exists
+  file:
+    path: "{{ nfs_dir }}"
+    state: directory
+    recurse: yes
+    owner: nobody
+    group: nogroup
+    mode: '777'
+
+- name: install nfs
+  package: name={{ nfs_package }} state=present update_cache=yes
+
+- name: copy template
+  template: src=exports.j2 dest={{ nfs_conf }} owner=root group=root mode=0644
+  notify: restart nfs

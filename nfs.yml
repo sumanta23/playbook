@@ -1,0 +1,8 @@
+---
+# This Playbook would deploy the whole mongodb cluster with replication.
+- name: install & setup nfs
+  hosts: nfs
+  become: yes
+  become_method: sudo
+  roles:
+  - role: nfs

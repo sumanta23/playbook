@@ -1,0 +1,10 @@
+---
+nfs_package: nfs-kernel-server
+nfs_daemon: nfs-kernel-server
+nfs_conf: /etc/exports
+nfs_dir: /var/nfs
+nfs_network: 10.0.0.0/8
+nfs_options:
+  - rw
+  - sync
+  - no_subtree_check
