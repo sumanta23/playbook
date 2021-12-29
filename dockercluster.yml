@@ -1,0 +1,6 @@
+- name: Start 4 load-balanced containers
+  docker_container:
+    name: "container{{ item }}"
+    recreate: yes
+    image: ubuntubase:latest
+  with_sequence: count=4
