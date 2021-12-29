@@ -7,13 +7,6 @@
   tags:
     - start
 
-- name: Delete a network, disconnecting all containers
-  community.docker.docker_network:
-    name: network_dc
-    state: absent
-    force: yes
-
-
 - name: Start 4 load-balanced containers
   community.docker.docker_container:
     name: "container{{ item }}"
@@ -21,7 +14,7 @@
     image: ubuntubase:latest
     networks:
       - name: network_dc
-        ipv4_address: "172.23.27.{{ item+1 }}"
+        ipv4_address: "172.23.27.{{ item|int +1 }}"
   with_sequence: count=4
   tags:
     - start
@@ -31,5 +24,13 @@
     name: "container{{ item }}"
     state: absent
   with_sequence: count=4
+  tags:
+    - stop
+
+- name: Delete a network, disconnecting all containers
+  community.docker.docker_network:
+    name: network_dc
+    state: absent
+    force: yes
   tags:
     - stop
