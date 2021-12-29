@@ -5,9 +5,13 @@
     recreate: yes
     image: ubuntubase:latest
   with_sequence: count=4
+  tags:
+    - start
 
 - name: Remove container
   community.docker.docker_container:
     name: "container{{ item }}"
     state: absent
   with_sequence: count=4
+  tags:
+    - stop
