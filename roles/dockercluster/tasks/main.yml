@@ -1,0 +1,13 @@
+---
+- name: Start 4 load-balanced containers
+  community.docker.docker_container:
+    name: "container{{ item }}"
+    recreate: yes
+    image: ubuntubase:latest
+  with_sequence: count=4
+
+- name: Remove container
+  community.docker.docker_container:
+    name: "container{{ item }}"
+    state: absent
+  with_sequence: count=4
