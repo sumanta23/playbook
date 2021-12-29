@@ -1,4 +1,19 @@
 ---
+- name: Create a network with custom IPAM config
+  community.docker.docker_network:
+    name: network_dc
+    ipam_config:
+      - subnet: 172.23.27.0/24
+  tags:
+    - start
+
+- name: Delete a network, disconnecting all containers
+  community.docker.docker_network:
+    name: network_dc
+    state: absent
+    force: yes
+
+
 - name: Start 4 load-balanced containers
   community.docker.docker_container:
     name: "container{{ item }}"
