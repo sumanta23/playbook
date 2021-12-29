@@ -1,6 +1,5 @@
-- name: Start 4 load-balanced containers
-  docker_container:
-    name: "container{{ item }}"
-    recreate: yes
-    image: ubuntubase:latest
-  with_sequence: count=4
+---
+- name: create 4 node cluster
+  hosts: localhost
+  roles:
+  - role: dockercluster
