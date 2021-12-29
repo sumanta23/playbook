@@ -11,7 +11,7 @@
   community.docker.docker_container:
     name: "container{{ item }}"
     recreate: yes
-    image: ubuntubase:latest
+    image: sumanta/basessh:latest
     networks:
       - name: network_dc
         ipv4_address: "172.23.27.{{ item|int +1 }}"
