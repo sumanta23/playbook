@@ -1,0 +1,42 @@
+
+---
+- name: ensure redis package get installed
+  apt:
+    name: 'redis-server'
+    state: present
+    update_cache: yes
+  tags:
+    - install
+
+- name: set redis configuration
+  template: src=redis.conf.j2 dest={{ redis_config_path }} owner=redis group=redis mode=0640
+  notify:
+    - restart redis
+  tags:
+    - install
+
+- name: Ensure {{ systemd_name }} is running and and enabled to start automatically on reboots
+  systemd:
+    name: "{{ systemd_name }}"
+    enabled: yes
+    state: restarted
+  register: myserviceDetails
+  until: myserviceDetails.status.ActiveState == "active"
+  retries: 15
+  delay: 20
+  tags:
+    - install
+
+- name: set redis cluster configuration
+  template: src=redis-cluster.conf.j2 dest={{ redis_config_path }} owner=redis group=redis mode=0640
+  notify:
+    - restart redis
+  tags:
+    - setup
+
+- name: trigger cluster setup
+  shell: echo yes |redis-cli -a {{ redispass }} --cluster create {{ groups["rediscluster"] | join(":6379, ") }}:6379 --cluster-replicas {{ redis_replica_count }}
+  run_once: true
+  when: inventory_hostname in groups['rediscluster'][0]
+  tags:
+    - setup

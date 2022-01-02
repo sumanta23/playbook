@@ -2,3 +2,6 @@
 # mongod setting
 mongo_admin_pass: Pass@1234
 replica_set_name: rs
+
+# redis settings
+redispass: redispass

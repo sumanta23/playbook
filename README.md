@@ -18,3 +18,12 @@ ansible -i inventory.yml cluster  -m ansible.builtin.shell -a 'date'
 
 
 # Install Mongodb
+ansible-playbook -i inventory.ini mongodb.yml
+## create mongodn replicaset
+ansible-playbook -i inventory.ini mongodb_replicaset.yml
+
+# install redis
+ansible-playbook -i inventory.ini redis_cluster.yml --tag install
+
+## install redis
+ansible-playbook -i inventory.ini redis_cluster.yml --tag setup

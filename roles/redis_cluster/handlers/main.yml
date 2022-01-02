@@ -1,0 +1,3 @@
+---
+- name: restart redis
+  service: name={{ systemd_name }} state=restarted

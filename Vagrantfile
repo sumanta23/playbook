@@ -18,7 +18,10 @@ Vagrant.configure("2") do |config|
   boxes = [
     { :name => "node1", :ip => "192.168.122.2" },
     { :name => "node2", :ip => "192.168.122.3" },
-    { :name => "node3", :ip => "192.168.122.4" }
+    { :name => "node3", :ip => "192.168.122.4" },
+    { :name => "node4", :ip => "192.168.122.5" },
+    { :name => "node5", :ip => "192.168.122.6" },
+    { :name => "node6", :ip => "192.168.122.7" },
   ]
 
   # Provision each of the VMs.
