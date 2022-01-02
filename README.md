@@ -1,5 +1,12 @@
 ansible-galaxy collection install -r requirements.yml
 
+# Inventory list
+ansible-inventory -i inventory.ini  --list
+
+# List Tasks & tags & hosts
+ansible-playbook -i inventory.ini mongodb.yml --list-tasks --list-tags --list-hosts
+
+
 # create cluster
 ansible-playbook kvmcluster.yml --tags setup
 ansible-playbook kvmcluster.yml --tags list
@@ -10,3 +17,4 @@ ansible -i inventory.yml cluster -u vagrant -e ansible_ssh_private_key_file=kvm 
 ansible -i inventory.yml cluster  -m ansible.builtin.shell -a 'date'
 
 
+# Install Mongodb
