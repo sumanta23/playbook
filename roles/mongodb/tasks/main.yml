@@ -23,9 +23,6 @@
   notify:
     - restart mongodb
 
-- name: Create the file to create the admin user
-  template: src=create_user.j2 dest=/tmp/create_user.js mode=0777
-
 - name: Ensure {{ systemd_name }} is running and and enabled to start automatically on reboots
   systemd:
     name: "{{ systemd_name }}"
@@ -36,9 +33,6 @@
   retries: 15
   delay: 20
 
-- name: Create the admin user
-  shell: /usr/bin/mongo localhost:27017/admin /tmp/create_user.js
-  ignore_errors: true
 
 - name:  Set vm.dirty_ratio 
   sysctl:

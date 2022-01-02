@@ -1,0 +1,9 @@
+---
+mongod_port: 27017
+mongod_config_path: /etc/mongod.conf
+mongodb_config_prefix: /etc/
+systemd_name: mongod
+mongo_admin_user: admin
+mongo_admin_db: admin
+mongodb_user: mongodb
+mongodb_group: mongodb

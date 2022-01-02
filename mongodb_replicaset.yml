@@ -1,0 +1,8 @@
+---
+# This Playbook would deploy the whole mongodb cluster with replication.
+- name: Install MongoDB replicaset
+  hosts: mongodbcluster
+  become: yes
+  become_method: sudo
+  roles:
+  - role: mongodb_replicaset

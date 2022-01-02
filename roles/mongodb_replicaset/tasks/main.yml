@@ -1,0 +1,36 @@
+
+---
+- name: Copy the keyfile for replicated authentication
+  copy: src=secret dest={{ mongodb_config_prefix }}mongosecret owner={{ mongodb_user }} group={{ mongodb_group }} mode=0400
+  become_method: sudo
+
+- name: Create the authenticated mongodb configuration file
+  template: src=mongod_unauthenticated.conf.j2 dest={{ mongod_config_path }} mode=0777
+  notify:
+    - restart mongodb
+
+- name: Ensure {{ systemd_name }} is running and and enabled to start automatically on reboots
+  systemd:
+    name: "{{ systemd_name }}"
+    enabled: yes
+    state: restarted
+  register: myserviceDetails
+  until: myserviceDetails.status.ActiveState == "active"
+  retries: 15
+  delay: 20
+  
+- name: Create the file to create the admin user
+  template: src=create_user.j2 dest=/tmp/create_user.js mode=0777
+
+- name: Create the admin user
+  shell: /usr/bin/mongo localhost:27017/admin /tmp/create_user.js
+  ignore_errors: true
+  run_once: true
+
+- name: Create the file to initialize the replicaset
+  template: src=repset_init.j2 dest=/tmp/repset_init.js mode=0777
+
+- name: Initialize the replication set on the primary
+  shell: /usr/bin/mongo {{ groups["mongoprimary"][0] }}:{{ mongod_port }}/admin -u admin -p {{ mongo_admin_pass }} /tmp/repset_init.js
+  run_once: true
+  when: inventory_hostname in groups['mongoprimary']

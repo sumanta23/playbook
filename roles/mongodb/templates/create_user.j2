@@ -1,6 +1,0 @@
-db = db.getSiblingDB('admin');
-db.createUser({
-  user: "admin",
-  pwd: "{{ mongo_admin_pass }}",
-  roles: [ { role: "root", db: "{{ mongo_admin_user }}" } ]
-});

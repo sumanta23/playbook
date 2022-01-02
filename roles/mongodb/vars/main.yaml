@@ -2,4 +2,3 @@
 mongod_port: 27017
 mongod_config_path: /etc/mongod.conf
 systemd_name: mongod
-mongo_admin_user: admin
