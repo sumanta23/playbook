@@ -1,0 +1,5 @@
+---
+rabbitmq_cookie_path: /var/lib/rabbitmq/.erlang.cookie
+systemd_name: rabbitmq-server
+rabbitmq_user: rabbitmq
+rabbitmq_pass: rabbitmq

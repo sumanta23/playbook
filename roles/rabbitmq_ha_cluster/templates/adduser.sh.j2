@@ -1,0 +1,3 @@
+rabbitmqctl add_user  {{rabbitmq_user}} {{rabbitmq_pass}}
+rabbitmqctl set_user_tags {{rabbitmq_user}} administrator
+rabbitmqctl set_permissions -p / {{rabbitmq_user}} ".*" ".*" ".*"

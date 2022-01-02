@@ -1,0 +1,3 @@
+---
+- name: restart rabbitmq
+  service: name={{ systemd_name }} state=restarted

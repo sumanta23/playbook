@@ -1,0 +1,80 @@
+
+---
+- name: ensure rabbitmq package get installed
+  apt:
+    name: 'rabbitmq-server'
+    state: present
+    update_cache: yes
+  tags:
+    - install
+
+- name: Ensure {{ systemd_name }} is running and and enabled to start automatically on reboots
+  systemd:
+    name: "{{ systemd_name }}"
+    enabled: yes
+    state: restarted
+  register: myserviceDetails
+  until: myserviceDetails.status.ActiveState == "active"
+  retries: 15
+  delay: 20
+  tags:
+    - install
+
+- name: copy rabbitmq add user script
+  template: src=adduser.sh.j2 dest=/tmp/adduser.sh
+  tags:
+    - install
+
+- name: add rabbitmq user
+  shell: bash /tmp/adduser.sh
+  run_once: true
+  become_method: sudo
+  tags:
+    - install
+
+
+- name: enable management plugin
+  shell: rabbitmq-plugins enable rabbitmq_management
+  run_once: true
+  become_method: sudo
+  tags:
+    - install
+
+- name: Add IP address of all hosts to all hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item].ansible_ssh_host }} {{item}}"
+    state: present
+  when: hostvars[item].ansible_ssh_host is defined
+  with_items: "{{ groups.rabbitmqcluster }}"
+  tags:
+    - setup
+
+- name: set rabbitmq cookie configuration
+  copy: src=secret dest={{ rabbitmq_cookie_path }} owner=rabbitmq group=rabbitmq mode=0400
+  notify:
+    - restart rabbitmq
+  tags:
+    - setup
+
+- name: trigger cluster setup
+  shell: |
+    rabbitmqctl stop_app
+    rabbitmqctl reset
+    rabbitmqctl join_cluster rabbit@{{rabbitmqprimary}}
+    rabbitmqctl start_app
+  run_once: true
+  become_method: sudo
+  when: inventory_hostname in groups['rabbitmqreplicas']
+  tags:
+    - setup
+
+- name: set ha policy
+  shell: |
+    rabbitmqctl set_policy ha "" '{"ha-mode":"exactly","ha-params":2,"ha-sync-mode":"automatic"}'
+  run_once: true
+  become_method: sudo
+  when: inventory_hostname in groups['rabbitmqprimary']
+  tags:
+    - setup
