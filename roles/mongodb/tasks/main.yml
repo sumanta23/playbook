@@ -1,0 +1,95 @@
+
+---
+- name: MongoDB - Import public key
+  apt_key:
+    url: https://www.mongodb.org/static/pgp/server-5.0.asc
+    state: present
+
+- name: MongoDB - Add repository
+  apt_repository:
+    filename: '/etc/apt/sources.list.d/mongodb-org-5.0.list'
+    repo: 'deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse'
+    state: present
+    update_cache: yes
+
+- name: ensure mongodb package get installed
+  apt:
+    name: 'mongodb-org'
+    state: present
+    update_cache: yes
+
+- name: Create the unauthenticated mongodb configuration file
+  template: src=mongod_unauthenticated.conf.j2 dest={{ mongod_config_path }} mode=0777
+  notify:
+    - restart mongodb
+
+- name: Create the file to create the admin user
+  template: src=create_user.j2 dest=/tmp/create_user.js mode=0777
+
+- name: Ensure {{ systemd_name }} is running and and enabled to start automatically on reboots
+  systemd:
+    name: "{{ systemd_name }}"
+    enabled: yes
+    state: restarted
+  register: myserviceDetails
+  until: myserviceDetails.status.ActiveState == "active"
+  retries: 15
+  delay: 20
+
+- name: Create the admin user
+  shell: /usr/bin/mongo localhost:27017/admin /tmp/create_user.js
+  ignore_errors: true
+
+- name:  Set vm.dirty_ratio 
+  sysctl:
+    name: vm.dirty_ratio
+    value: '15'
+    state: present
+
+- name:  Set vm.dirty_background_ratio 
+  sysctl:
+    name: vm.dirty_background_ratio
+    value: '5'
+    state: present
+
+- name: Set vm.swappiness
+  sysctl:
+    name: vm.swappiness
+    value: '10'
+    state: present
+
+- name: Set net.core.somaxconn 
+  sysctl:
+    name: net.core.somaxconn
+    value: '4096'
+    state: present
+
+- name: Set net.ipv4.tcp_fin_timeout
+  sysctl:
+    name: net.ipv4.tcp_fin_timeout
+    value: '30'
+    state: present
+
+- name: net.ipv4.tcp_keepalive_intvl
+  sysctl:
+    name: net.ipv4.tcp_keepalive_intvl
+    value: '30'
+    state: present
+
+- name: net.ipv4.tcp_keepalive_time
+  sysctl:
+    name: net.ipv4.tcp_keepalive_time
+    value: '120'
+    state: present
+
+- name: net.ipv4.tcp_max_syn_backlog 
+  sysctl:
+    name: net.ipv4.tcp_max_syn_backlog 
+    value: '4096'
+    state: present
+
+- name: install ntp
+  apt: 
+    name: ntp
+    state: present
+    update_cache: yes

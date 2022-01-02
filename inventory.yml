@@ -25,3 +25,12 @@ worker:
   hosts:
     192.168.122.20:
     192.168.122.21:
+
+cluster:
+  hosts:
+    192.168.122.2:
+    192.168.122.3:
+    192.168.122.4:
+  vars:
+    ansible_user: vagrant
+

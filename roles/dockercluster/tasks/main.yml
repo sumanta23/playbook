@@ -11,11 +11,11 @@
   community.docker.docker_container:
     name: "container{{ item }}"
     recreate: yes
-    image: sumanta/basessh:latest
+    image: sumanta23/basessh:latest
     networks:
       - name: network_dc
         ipv4_address: "172.23.27.{{ item|int +1 }}"
-  with_sequence: count=4
+  with_sequence: count=3
   tags:
     - start
 
@@ -23,7 +23,7 @@
   community.docker.docker_container:
     name: "container{{ item }}"
     state: absent
-  with_sequence: count=4
+  with_sequence: count=3
   tags:
     - stop
 
